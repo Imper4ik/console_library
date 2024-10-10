@@ -30,26 +30,45 @@ class UserRegistration:
             except ValueError:
                 print("Пожалуйста, введите корректное число.")
 
+    @staticmethod
+    def get_valid_username():
+        while True:
+            username = input("Введите ваше имя пользователя: ")
+            if username.strip() and not sql_db.check_user_exists(username):
+                return username
+            else:
+                print("Некорректное имя пользователя или оно уже занято. Попробуйте снова.")
+
+    @staticmethod
+    def get_valid_password():
+        while True:
+            try:
+                password = input('Пожалуйста, введите свой пароль (Пароль должен содержать цифры и буквы, не менее 6 символов): ')
+                # Проверка на наличие и букв, и цифр, и длины пароля
+                if any(char.isdigit() for char in password) and any(char.isalpha() for char in password) and len(
+                        password) >= 6:
+                    return password
+                else:
+                    print('Пароль должен содержать как буквы, так и цифры, и быть длиной не менее 6 символов.')
+            except Exception as e:
+                print(f'Произошла ошибка: {e}')
+
     def register(self):
         self.name = self.get_valid_name("Введите ваше имя: ")
         self.surname = self.get_valid_name("Введите вашу фамилию: ")
         self.age = self.get_valid_age()
-        self.username = input("Введите ваше имя пользователя: ")
-        self.password = input("Введите ваш пароль: ")
-
-        # Проверка наличия пользователя
-        if sql_db.check_user_exists(self.username):
-            print("Имя пользователя уже существует. Пожалуйста, выберите другое имя.")
-            return False
+        self.username = self.get_valid_username()  # Используем метод для валидации имени пользователя
+        self.password = self.get_valid_password()
 
         check_password = input('Введите ваш пароль еще раз: ')
-        while True:
-            if self.password == check_password:
-                print('Пароль подтвержден.')
-                sql_db.insert_customer(self.name, self.surname, self.age, self.username, self.password)  # Добавляем пользователя в БД
-                return True  # Возвращаем True при успешной регистрации
-            else:
-                print('Пароли не совпадают, попробуйте еще раз.')
+        while self.password != check_password:
+            print('Пароли не совпадают, попробуйте еще раз.')
+            check_password = input('Введите ваш пароль еще раз: ')
+
+        print('Пароль подтвержден.')
+        sql_db.insert_customer(self.name, self.surname, self.age, self.username, self.password)
+        print(f"Привет {self.username}! Вы успешно зарегистрированы.")
+        return True
 
 
 class UserLogin:

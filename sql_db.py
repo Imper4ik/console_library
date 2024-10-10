@@ -11,6 +11,7 @@ def connect_db():
 
 def create_tables(connection):
     with connection.cursor() as cursor:
+        # Таблица для всех книг
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS LIBRARY(
@@ -23,6 +24,7 @@ def create_tables(connection):
         )
         print('[INFO] Таблица LIBRARY создана')
 
+        # Таблица для информации о пользователях
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Customer_info(
@@ -36,6 +38,20 @@ def create_tables(connection):
             """
         )
         print('[INFO] Таблица Customer_info создана')
+
+        # Таблица для книг пользователей
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS User_Books(
+            id SERIAL PRIMARY KEY,
+            name_the_book VARCHAR(255) NOT NULL,
+            author_the_book VARCHAR(255) NOT NULL,
+            year_the_book INTEGER NOT NULL,
+            customer_id INT REFERENCES Customer_info(id) ON DELETE CASCADE
+            );
+            """
+        )
+        print('[INFO] Таблица User_Books создана')
 
 
 def check_user_login(connection, username):
