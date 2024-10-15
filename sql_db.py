@@ -1,12 +1,18 @@
+import os
+
 import psycopg2
 import bcrypt
-from config import host, user, password, dbname
+
+
+dotenv_host = os.getenv('host')
+dotenv_user = os.getenv('user')
+dotenv_password = os.getenv('password')
+dotenv_dbname = os.getenv('dbname')
+
 
 # Функция для подключения к PostgreSQL
-
-
 def connect_db():
-    return psycopg2.connect(database=dbname, user=user, password=password, host=host)
+    return psycopg2.connect(database=dotenv_dbname, user=dotenv_user, password=dotenv_password, host=dotenv_host)
 
 
 def create_tables(connection):
