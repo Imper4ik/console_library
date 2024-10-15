@@ -1,8 +1,12 @@
-import os
+from dotenv import load_dotenv
 
+import os
 import psycopg2
 import bcrypt
 
+
+# Загрузка переменных окружения
+load_dotenv()
 
 dotenv_host = os.getenv('host')
 dotenv_user = os.getenv('user')
@@ -10,14 +14,16 @@ dotenv_password = os.getenv('password')
 dotenv_dbname = os.getenv('dbname')
 
 
-# Функция для подключения к PostgreSQL
 def connect_db():
+    if not all([dotenv_host, dotenv_user, dotenv_password, dotenv_dbname]):
+        print("[ERROR] Одной или нескольких переменных окружения не существует!")
+        return None
+
     return psycopg2.connect(database=dotenv_dbname, user=dotenv_user, password=dotenv_password, host=dotenv_host)
 
 
 def create_tables(connection):
     with connection.cursor() as cursor:
-        # Таблица для всех книг
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS LIBRARY(
@@ -30,7 +36,6 @@ def create_tables(connection):
         )
         print('[INFO] Таблица LIBRARY создана')
 
-        # Таблица для информации о пользователях
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Customer_info(
@@ -45,7 +50,6 @@ def create_tables(connection):
         )
         print('[INFO] Таблица Customer_info создана')
 
-        # Таблица для книг пользователей
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS User_Books(
@@ -156,17 +160,18 @@ def get_user_books(connection, user_id):
 
 
 def main():
+    connection = None
     try:
         connection = connect_db()
-        connection.autocommit = True
-        create_tables(connection)  # Создаем таблицы, если их еще нет
+        if connection:
+            connection.autocommit = True
+            create_tables(connection)  # Создаем таблицы, если их еще нет
     except Exception as ex:
         print('[ERROR] Ошибка при работе с PostgreSQL:', ex)
     finally:
         if connection:
             connection.close()
             print('[INFO] Соединение с PostgreSQL закрыто.')
-
 
 if __name__ == "__main__":
     main()
