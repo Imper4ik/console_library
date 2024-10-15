@@ -173,5 +173,6 @@ def main():
             connection.close()
             print('[INFO] Соединение с PostgreSQL закрыто.')
 
+
 if __name__ == "__main__":
     main()
